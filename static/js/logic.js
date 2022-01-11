@@ -72,25 +72,41 @@ async function main() {
             
     };
 
-    // //legend for colors
-    // const legend = L.control({position:'bottomright'});
+    //legend for colors
+    const legend = L.control({position:'bottomright'});
 
-    // legend.onAdd = function() {
-    //     const div = L.DomUtil.create("div", "info legend");
-    //     const grades = [0,10,30,50,70,90];
-    //     const labels = [];
+    legend.onAdd = function(myMap) {
+        const div = L.DomUtil.create("div", "info legend");
+        const grades = [0,10,30,50,70,90];
+        const labels = [];
 
-    //     for (let i=0; i ,grades.length; i++){
-    //         div.innerHTML += 
-    //             'i style="background:' + circleColor(grades[i] + 1)
-    //             + '"></i> ' + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] 
-    //             + '<br>' : '+');
-    //     };
+        const legendInfo = "<h2>Earthquake Depth</h2>" +
+            "<div class=\"labels\">" + "</div>";
 
-    //     return div;
-    //   };
+        div.innerHTML = legendInfo;
 
-    // legend.addTo(myMap);
+        grades.forEach(function(grade, i) {
+            labels.push("<li style= \"background-color: " + circleColor(grades[i]) + "\">" +
+            grades[i] + '&ndash;' + grades[i + 1] + "</li>")
+        });
+
+        div.innerHTML += "<ul>" + labels + "</ul>";
+
+
+        // for (let i=0; i ,grades.length; i++){
+        //     div.innerHTML += 
+        //         'i style="background:' + circleColor(grades[i] + 1)
+        //         + '"></i> ' + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] 
+        //         + '<br>' : '+');
+        // };
+
+
+
+
+        return div;
+      };
+
+    legend.addTo(myMap);
 
 };
 
