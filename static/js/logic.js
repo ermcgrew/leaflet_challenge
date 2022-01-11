@@ -31,12 +31,12 @@ async function main() {
 
     //depth of the earthquake = color, greater depth = darker in color
     function circleColor(depth) {
-        // ['#fdbe85','#fd8d3c','#e6550d','#a63603', '#ff0000']
-        return depth < 10 ? '#fdbe85':
-                depth < 30 ? '#fd8d3c':
-                depth < 50 ? '#e6550d':
-                depth < 70 ? '#a63603':
-                depth > 90 ? '#ff0000':
+        //['#feedde','#','#','#fd8d3c','#e6550d','#a63603']
+        return depth < 10 ? '#fdd0a2':
+                depth < 30 ? '#fdae6b':
+                depth < 50 ? '#fd8d3c':
+                depth < 70 ? '#e6550d':
+                depth < 90 ? '#a63603':
                             "#252525";
     };
 
@@ -80,28 +80,17 @@ async function main() {
         const grades = [0,10,30,50,70,90];
         const labels = [];
 
-        const legendInfo = "<h2>Earthquake Depth</h2>" +
+        const legendInfo = "<h3>Earthquake Depth (km)</h3>" +
             "<div class=\"labels\">" + "</div>";
 
         div.innerHTML = legendInfo;
 
-        grades.forEach(function(grade, i) {
+        for (let i = 0; i < (grades.length - 1); i++) {
             labels.push("<li style= \"background-color: " + circleColor(grades[i]) + "\">" +
-            grades[i] + '&ndash;' + grades[i + 1] + "</li>")
-        });
+            grades[i+1] + (grades[i + 2] ? '&ndash;' + grades[i + 2] + "</li>": "+</li>")); 
+        };
 
-        div.innerHTML += "<ul>" + labels + "</ul>";
-
-
-        // for (let i=0; i ,grades.length; i++){
-        //     div.innerHTML += 
-        //         'i style="background:' + circleColor(grades[i] + 1)
-        //         + '"></i> ' + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] 
-        //         + '<br>' : '+');
-        // };
-
-
-
+        div.innerHTML += "<ul>" + labels.join("") + "</ul>";
 
         return div;
       };
