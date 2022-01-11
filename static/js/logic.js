@@ -24,38 +24,52 @@ async function main() {
     // Add the layer control to the map.
     L.control.layers(baseMaps).addTo(myMap);
 
+    //circle radius = magnitude of the earthquake, higher magnitudes = larger circle
+    function circleSize(magnitude) {
+        return Math.pow(magnitude, 2) * 2000
+    };
+
+    //depth of the earthquake = color, greater depth = darker in color
+    function circleColor(depth) {
+        return depth < 10 ? '#a3ff00':
+                depth < 30 ? '#fff400':
+                depth < 50 ? '#ffa700':
+                depth < 70 ? '#ff5700':
+                depth > 90 ? '#ff0000':
+                            "#252525";
+    };
+
     //import geojson data from usgs.gov
     const geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
-    
     const response =  await fetch(geoData);
     const data = await response.json();
 
     let earthquakes = data.features;
-
-
+    
+    //loop through each earthquake in the returned data and add to the map
     for (let i = 0; i < earthquakes.length; i++) {
-
         let location = earthquakes[i].geometry;
+        let properties = earthquakes[i].properties;   
+        
+        //data markers by long & lat
+        L.circle([location.coordinates[1], location.coordinates[0]], {
+            color: circleColor(location.coordinates[2]),
+            weight: 5, 
+            fillOpacity: 0.75,
+            radius: circleSize(properties.mag)
+        //popups with more info when marker is clicked
+        }).bindPopup(`Location: ${properties.place}
+            <br>Time: ${properties.time} 
+            <br>Magnitude: ${properties.mag}
+            <br>Intensity: ${properties.mmi}
+            <br>Alert Level: ${properties.alert}
+            <br>How many people reported feeling this earthquake: ${properties.felt}`)
+        .addTo(myMap);
             
-            //data markers by long & lat
-            if (location) {
-                L.circle([location.coordinates[1], location.coordinates[0]], {
-                    color: "green", //depth of the earthquake = color, greater depth = darker in color
-                    fillOpacity: 0.75,
-                    radius: 500 //circles = magnitude of the earthquake, higher magnitudes = larger
-                }).addTo(myMap);
-            };
-
     };
-    
-
-    
-    
-
-    //popups with more info when marker is clicked
-
 
     //legend for colors
+
 
 };
 
