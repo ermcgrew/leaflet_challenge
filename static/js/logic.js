@@ -31,10 +31,11 @@ async function main() {
 
     //depth of the earthquake = color, greater depth = darker in color
     function circleColor(depth) {
-        return depth < 10 ? '#a3ff00':
-                depth < 30 ? '#fff400':
-                depth < 50 ? '#ffa700':
-                depth < 70 ? '#ff5700':
+        // ['#fdbe85','#fd8d3c','#e6550d','#a63603', '#ff0000']
+        return depth < 10 ? '#fdbe85':
+                depth < 30 ? '#fd8d3c':
+                depth < 50 ? '#e6550d':
+                depth < 70 ? '#a63603':
                 depth > 90 ? '#ff0000':
                             "#252525";
     };
@@ -51,15 +52,18 @@ async function main() {
         let location = earthquakes[i].geometry;
         let properties = earthquakes[i].properties;   
         
+        //convert UTC date to ISO readable version
+        const d = new Date(properties.time)
+        let dateTime = d.toISOString()
+
         //data markers by long & lat
         L.circle([location.coordinates[1], location.coordinates[0]], {
-            color: circleColor(location.coordinates[2]),
-            weight: 5, 
+            color: circleColor(location.coordinates[2]), 
             fillOpacity: 0.75,
             radius: circleSize(properties.mag)
         //popups with more info when marker is clicked
         }).bindPopup(`Location: ${properties.place}
-            <br>Time: ${properties.time} 
+            <br>Date and Time (UTC/GMT): ${dateTime} 
             <br>Magnitude: ${properties.mag}
             <br>Intensity: ${properties.mmi}
             <br>Alert Level: ${properties.alert}
@@ -68,8 +72,25 @@ async function main() {
             
     };
 
-    //legend for colors
+    // //legend for colors
+    // const legend = L.control({position:'bottomright'});
 
+    // legend.onAdd = function() {
+    //     const div = L.DomUtil.create("div", "info legend");
+    //     const grades = [0,10,30,50,70,90];
+    //     const labels = [];
+
+    //     for (let i=0; i ,grades.length; i++){
+    //         div.innerHTML += 
+    //             'i style="background:' + circleColor(grades[i] + 1)
+    //             + '"></i> ' + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] 
+    //             + '<br>' : '+');
+    //     };
+
+    //     return div;
+    //   };
+
+    // legend.addTo(myMap);
 
 };
 
