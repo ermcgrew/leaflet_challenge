@@ -5,8 +5,8 @@ Script to import and display earthquake data from USGS for the last 30 days. Map
 In this repo: 
 * static folder:
     * css folder:
-        *style.css: styling code for map and legend
+        * style.css: styling code for map and legend
     * js folder:
-        logic_bonus.js: adds tectonic plates as additonal layer on leaflet map
-        logic.js: javascript for importing data and creating leaflet map
+        * logic_bonus.js: adds tectonic plates as additonal layer on leaflet map
+        * logic.js: javascript for importing data and creating leaflet map
 * index.html: html code to display map in browser
