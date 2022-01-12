@@ -56,7 +56,7 @@ async function main() {
 
     //import data on tectonic plates from forked repo tectonicplates
     //both boundaries and plates (use polygon) are rotated 90 degrees to the map???
-    const plateData = "./tectonicplates/GeoJSON/PB2002_boundaries.json" 
+    const plateData = "./data/PB2002_boundaries.json" 
     const response2 =  await fetch(plateData);
     const plates = await response2.json();
 
