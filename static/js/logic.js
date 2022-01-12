@@ -1,5 +1,5 @@
 async function main() {
-  
+
     //circle radius = magnitude of the earthquake, higher magnitudes = larger circle
     function circleSize(magnitude) {
         return Math.pow(magnitude, 2) * 2000
@@ -38,23 +38,40 @@ async function main() {
         //data markers by long & lat
         quakeMarkers.push(
             L.circle([location.coordinates[1], location.coordinates[0]], {
-                color: '#1C1918', //outside borderline color
-                fillColor: circleColor(location.coordinates[2]), 
-                fillOpacity: 0.75,
-                radius: circleSize(properties.mag),
-                weight: 1 //weight of outside borderline
-            //popups with more info when marker is clicked
-            }).bindPopup(`Location: ${properties.place}
-                <br>Date and Time (UTC/GMT): ${dateTime} 
-                <br>Magnitude: ${properties.mag}
-                <br>Intensity: ${properties.mmi}
-                <br>Alert Level: ${properties.alert}
-                <br>How many people reported feeling this earthquake: ${properties.felt}`)
-        ); 
+            color: '#1C1918', //outside borderline color
+            fillColor: circleColor(location.coordinates[2]), 
+            fillOpacity: 0.75,
+            radius: circleSize(properties.mag),
+            weight: 1 //weight of outside borderline
+        //popups with more info when marker is clicked
+        }).bindPopup(`Location: ${properties.place}
+            <br>Date and Time (UTC/GMT): ${dateTime} 
+            <br>Magnitude: ${properties.mag}
+            <br>Intensity: ${properties.mmi}
+            <br>Alert Level: ${properties.alert}
+            <br>How many people reported feeling this earthquake: ${properties.felt}`));
+            
     };
 
-    //add earthquake array to layer group
+    //add quake array to layer group
     let quakes = L.layerGroup(quakeMarkers);
+
+
+    //import data on tectonic plates from repo tectonicplates
+    const plateData = "./data/PB2002_boundaries.json" 
+    const response2 =  await fetch(plateData);
+    const plates = await response2.json();
+
+    let plateGeos = plates.features;
+    
+    //put geojson into a layer with styling
+    let geojsonLayer = L.geoJSON(plateGeos, {
+        color: "yellow", 
+        weight: 4,
+        fillColor: "yellow",
+        fillOpacity: 0
+    }); 
+
 
     //create background tile layers
     const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -65,27 +82,28 @@ async function main() {
 	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
 
-    //add layers to objects
+    //create objects to hold layers
     const baseMaps = {
         Street: street,
         Topography: topo
     };
-    
+
     const overlayMaps = {
-        "Earthquakes": quakes
+        "Earthquakes": quakes,
+        "Tectonic Plates": geojsonLayer
     };
 
     // Create map object
       const myMap = L.map("map", {
-        center: [37.6872, -97.3301],
-        zoom: 4, 
-        layers: [street, quakes]
+        center: [35.9375, 14.3754],
+        zoom: 3, 
+        layers: [street, quakes, geojsonLayer]
     });
 
     // Add the layer control to the map.
     L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 
-   
+
     //legend for colors, see https://leafletjs.com/examples/choropleth/
     //create legend as variable
     const legend = L.control({position:'bottomright'});
