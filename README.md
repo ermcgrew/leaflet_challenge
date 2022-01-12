@@ -8,7 +8,6 @@ In this repo:
     * css folder:
         * style.css: styling code for map and legend
     * js folder:
-        * logic_bonus.js: adds tectonic plates as additonal layer on leaflet map
-        * logic.js: javascript for importing data and creating leaflet map
+        * logic.js: javascript for importing data and creating leaflet map, earthquake data and tectonic plates as layers
 * earthquake_map_screenshot.png: screenshot of deployed code on 1/12/2022
 * index.html: html code to display map in browser
