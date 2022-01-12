@@ -17,7 +17,7 @@ async function main() {
     // Create map object
       const myMap = L.map("map", {
         center: [37.6872, -97.3301],
-        zoom: 5, 
+        zoom: 4, 
         layers: [street]
     });
 
@@ -29,19 +29,19 @@ async function main() {
         return Math.pow(magnitude, 2) * 2000
     };
 
-    //depth of the earthquake = color, greater depth = darker in color
+    //depth of the earthquake = color, greater depth = redder
     function circleColor(depth) {
-        //['#feedde','#','#','#fd8d3c','#e6550d','#a63603']
-        return depth < 10 ? '#fdd0a2':
-                depth < 30 ? '#fdae6b':
-                depth < 50 ? '#fd8d3c':
-                depth < 70 ? '#e6550d':
-                depth < 90 ? '#a63603':
+        return depth < 10 ? '#00ff00':
+                depth < 30 ? '#6AFF00':
+                depth < 50 ? '#D4FF00':
+                depth < 70 ? '#FFD300':
+                depth < 90 ? '#FF6900':
+                depth >= 90 ? '#ff0000':
                             "#252525";
     };
 
-    //import geojson data from usgs.gov
-    const geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+    //import geojson data on past 30 days of earthquakes from usgs.gov
+    const geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
     const response =  await fetch(geoData);
     const data = await response.json();
 
@@ -58,9 +58,11 @@ async function main() {
 
         //data markers by long & lat
         L.circle([location.coordinates[1], location.coordinates[0]], {
-            color: circleColor(location.coordinates[2]), 
+            color: '#1C1918', //outside borderline color
+            fillColor: circleColor(location.coordinates[2]), 
             fillOpacity: 0.75,
-            radius: circleSize(properties.mag)
+            radius: circleSize(properties.mag),
+            weight: 1 //weight of outside borderline
         //popups with more info when marker is clicked
         }).bindPopup(`Location: ${properties.place}
             <br>Date and Time (UTC/GMT): ${dateTime} 
@@ -72,29 +74,33 @@ async function main() {
             
     };
 
-    //legend for colors
+    //legend for colors, see https://leafletjs.com/examples/choropleth/
+    //create legend as variable
     const legend = L.control({position:'bottomright'});
-
+    
+    //function to populate the legend
     legend.onAdd = function(myMap) {
+        //create div for function to live in
         const div = L.DomUtil.create("div", "info legend");
+        //array of steps that make up the color ranges
         const grades = [0,10,30,50,70,90];
-        const labels = [];
 
+        //add heading info to div
         const legendInfo = "<h3>Earthquake Depth (km)</h3>" +
             "<div class=\"labels\">" + "</div>";
-
         div.innerHTML = legendInfo;
 
-        for (let i = 0; i < (grades.length - 1); i++) {
-            labels.push("<li style= \"background-color: " + circleColor(grades[i]) + "\">" +
-            grades[i+1] + (grades[i + 2] ? '&ndash;' + grades[i + 2] + "</li>": "+</li>")); 
+        //for each interval of depths, 
+        for (let i = 0; i < (grades.length); i++) {
+            div.innerHTML += 
+            "<i style= \"background-color: " + circleColor(grades[i]) + "\"></i>" + //add the color to a special <i> section
+            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + ' km<br>' : "+ km"); //add the number range, except for last position
         };
-
-        div.innerHTML += "<ul>" + labels.join("") + "</ul>";
 
         return div;
       };
 
+    //add legend to map
     legend.addTo(myMap);
 
 };
