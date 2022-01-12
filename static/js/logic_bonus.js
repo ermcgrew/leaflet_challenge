@@ -61,6 +61,7 @@ async function main() {
     const plates = await response2.json();
 
     let plateGeos = plates.features;
+    console.log(plates);
     
     //array to hold tectonic plate markers
     let plateMarkers = []
