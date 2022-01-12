@@ -1,29 +1,5 @@
 async function main() {
   
-    //create background tile layers
-    const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
-
-    const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-    });
-
-    const baseMaps = {
-        Street: street,
-        Topography: topo
-    };
-    
-    // Create map object
-      const myMap = L.map("map", {
-        center: [37.6872, -97.3301],
-        zoom: 4, 
-        layers: [street]
-    });
-
-    // Add the layer control to the map.
-    L.control.layers(baseMaps).addTo(myMap);
-
     //circle radius = magnitude of the earthquake, higher magnitudes = larger circle
     function circleSize(magnitude) {
         return Math.pow(magnitude, 2) * 2000
@@ -47,6 +23,9 @@ async function main() {
 
     let earthquakes = data.features;
     
+    //array to hold earthquake markers
+    let quakeMarkers = [];
+
     //loop through each earthquake in the returned data and add to the map
     for (let i = 0; i < earthquakes.length; i++) {
         let location = earthquakes[i].geometry;
@@ -57,23 +36,56 @@ async function main() {
         let dateTime = d.toISOString()
 
         //data markers by long & lat
-        L.circle([location.coordinates[1], location.coordinates[0]], {
-            color: '#1C1918', //outside borderline color
-            fillColor: circleColor(location.coordinates[2]), 
-            fillOpacity: 0.75,
-            radius: circleSize(properties.mag),
-            weight: 1 //weight of outside borderline
-        //popups with more info when marker is clicked
-        }).bindPopup(`Location: ${properties.place}
-            <br>Date and Time (UTC/GMT): ${dateTime} 
-            <br>Magnitude: ${properties.mag}
-            <br>Intensity: ${properties.mmi}
-            <br>Alert Level: ${properties.alert}
-            <br>How many people reported feeling this earthquake: ${properties.felt}`)
-        .addTo(myMap);
-            
+        quakeMarkers.push(
+            L.circle([location.coordinates[1], location.coordinates[0]], {
+                color: '#1C1918', //outside borderline color
+                fillColor: circleColor(location.coordinates[2]), 
+                fillOpacity: 0.75,
+                radius: circleSize(properties.mag),
+                weight: 1 //weight of outside borderline
+            //popups with more info when marker is clicked
+            }).bindPopup(`Location: ${properties.place}
+                <br>Date and Time (UTC/GMT): ${dateTime} 
+                <br>Magnitude: ${properties.mag}
+                <br>Intensity: ${properties.mmi}
+                <br>Alert Level: ${properties.alert}
+                <br>How many people reported feeling this earthquake: ${properties.felt}`)
+        ); 
     };
 
+    //add earthquake array to layer group
+    let quakes = L.layerGroup(quakeMarkers);
+
+    //create background tile layers
+    const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
+    //add layers to objects
+    const baseMaps = {
+        Street: street,
+        Topography: topo
+    };
+    
+    const overlayMaps = {
+        "Earthquakes": quakes
+    };
+
+    // Create map object
+      const myMap = L.map("map", {
+        center: [37.6872, -97.3301],
+        zoom: 4, 
+        layers: [street, quakes]
+    });
+
+    // Add the layer control to the map.
+    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+
+   
     //legend for colors, see https://leafletjs.com/examples/choropleth/
     //create legend as variable
     const legend = L.control({position:'bottomright'});
